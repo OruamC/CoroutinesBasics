@@ -1,12 +1,25 @@
-import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+
+var functionCalls = 0
 
 fun main() {
-    runBlocking {
-        launch(CoroutineName("myCoroutine")) {
-            println("This is run from ${coroutineContext[CoroutineName.Key]}")
-        }
-    }
+    GlobalScope.launch { completeMassage() }
+    GlobalScope.launch { improveMessage() }
+    print("Hello, ")
+    Thread.sleep(2000L)
+    println("There have been $functionCalls calls so far")
+}
+
+suspend fun completeMassage() {
+    delay(500L)
+    println("World!")
+    functionCalls++
+}
+
+suspend fun improveMessage() {
+    delay(1000L)
+    println("Suspend functions are cool")
+    functionCalls++
 }
