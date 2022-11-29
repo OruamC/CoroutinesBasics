@@ -1,12 +1,24 @@
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 
 fun main() {
+    println("Program execution will now block")
     runBlocking {
-        repeat(1_000_000) {
+        launch {
+            delay(1000L)
+            println("Task from runBlocking")
+        }
+
+        GlobalScope.launch {
+            delay(500L)
+            println("Task from GlobalScope")
+        }
+
+        coroutineScope {
             launch {
-                print(".")
+                delay(1500L)
+                println("Task from coroutineScope")
             }
         }
     }
+    println("Program execution will now continue")
 }
