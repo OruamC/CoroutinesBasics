@@ -1,25 +1,39 @@
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 var functionCalls = 0
 
 fun main() {
-    GlobalScope.launch { completeMassage() }
-    GlobalScope.launch { improveMessage() }
-    print("Hello, ")
-    Thread.sleep(2000L)
-    println("There have been $functionCalls calls so far")
-}
+    runBlocking {
+        val job1 = launch {
+//            delay(3000L)
+            println("Job1 launched")
+            val job2 = launch {
+                println("Job2 launched")
+                delay(3000L)
+                println("Job2 is finishing")
+            }
+            job2.invokeOnCompletion {
+                println("Job2 completed")
+            }
 
-suspend fun completeMassage() {
-    delay(500L)
-    println("World!")
-    functionCalls++
-}
+            val job3 = launch {
+                println("Job3 launched")
+                delay(3000L)
+                println("Job3 is finishing")
+            }
+            job3.invokeOnCompletion {
+                println("Job3 completed")
+            }
+        }
 
-suspend fun improveMessage() {
-    delay(1000L)
-    println("Suspend functions are cool")
-    functionCalls++
+        job1.invokeOnCompletion {
+            println("Job1 completed")
+        }
+        delay(500L)
+
+        println("Job1 will be cancelled")
+        job1.cancel()
+    }
 }
