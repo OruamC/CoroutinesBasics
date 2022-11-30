@@ -1,16 +1,26 @@
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 
 fun main() {
     runBlocking {
-        launch(Dispatchers.Default) {
-            println("First context: $coroutineContext")
-            withContext(Dispatchers.IO) {
-                println("Second context: $coroutineContext")
-            }
-            println("Third context: $coroutineContext")
+        val myHandler = CoroutineExceptionHandler { coroutineContext, throwable ->
+            println("Exception handled: ${throwable.localizedMessage}")
+        }
+
+        val job = GlobalScope.launch(myHandler) {
+            println("Throwing exception from job")
+            throw IndexOutOfBoundsException("Exception in coroutine")
+        }
+        job.join()
+
+        val deferred = GlobalScope.async {
+            println("Throwing exception from async")
+            throw ArithmeticException("exception from async")
+        }
+
+        try {
+            deferred.await()
+        } catch (e: ArithmeticException) {
+            println("Caught ArithmeticException ${e.localizedMessage}")
         }
     }
 }
