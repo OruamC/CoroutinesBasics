@@ -1,27 +1,34 @@
-import kotlinx.coroutines.*
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import kotlin.random.Random
 
 fun main() {
     runBlocking {
-//        launch(Dispatchers.Main) {
-//            println("Main dispatcher. Thread ${Thread.currentThread().name}")
-//        }
+        val firstDeferred = async { getFirstValue() }
+        val secondDeferred = async { getSecondValue() }
 
-        launch(Dispatchers.Unconfined) {
-            println("Unconfined1. Thread ${Thread.currentThread().name}")
-            delay(100L)
-            println("Unconfined2. Thread ${Thread.currentThread().name}")
-        }
+        println("Doing some processing here")
+        delay(500L)
+        println("Waiting for values")
 
-        launch(Dispatchers.Default) {
-            println("Default dispatcher. Thread ${Thread.currentThread().name}")
-        }
+        val firstValue = firstDeferred.await()
+        val secondValue = secondDeferred.await()
 
-        launch(Dispatchers.IO) {
-            println("IO dispatcher. Thread ${Thread.currentThread().name}")
-        }
-
-        launch(newSingleThreadContext("MyThread")) {
-            println("NewSingleThreadContext. Thread ${Thread.currentThread().name}")
-        }
+        println("The total is ${firstValue + secondValue}")
     }
+}
+
+suspend fun getFirstValue(): Int {
+    delay(1000L)
+    val value = Random.nextInt(100)
+    println("Returning first value $value")
+    return value
+}
+
+suspend fun getSecondValue(): Int {
+    delay(2000L)
+    val value = Random.nextInt(1000)
+    println("Returning second value $value")
+    return value
 }
